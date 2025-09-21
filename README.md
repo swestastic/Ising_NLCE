@@ -31,15 +31,15 @@ To begin, we want to calculate all of the possible valid clusters for each order
 
 Something to consider is the difference between all clusters, symmetrically distinct clusters, and topologically distinct clusters; This is discussed later. A table containing the number of clusters is below for the square lattice. 
 
-| Order | Total Clusters (naive) | Symmetrically Distinct | Topologically Distinct | 
+| Order | Total Clusters (naive) | Symmetrically Distinct | Topologically Distinct |
 | :---: | :---: | :---: | :---: |
 | 1 | 1 | 1 | 1 |
 | 2 | 4 | 1 | 1 |
-| 3 | | 2 | 1 |
-| 4 | | 5 | 3 |
-| 5 | | 12 | 4 |
-| 6 | | 35 | 10 |
-| 7 | | 108 | 19 |
+| 3 | 24 | 2 | 1 |
+| 4 | 176 | 5 | 3 |
+| 5 | 1504 | 12 | 4 |
+| 6 | 14560 | 35 | 10 |
+| 7 | 156768 | 108 | 19 |
 | 8 | | 369 | 51 |
 | 9 | | 1285 | 112 |
 | 10 | | 4655 | 300 |
@@ -71,7 +71,7 @@ Each cluster has $2^{order}$ possible configurations of spins, because each site
 We then calculate the partition function $Z$ for each cluster by summing over each configuration of $S$ values: $\{S\} = S_1, S_2, ..., S_{order}$ where $S_1, S_2, ... , S_{order} = \pm 1$:
 
 ```math
-Z = \sum_{\{S\}} e^{-\beta H \{S\}} = \sum_{\{S\}}e^{\beta J \sum_{\langle i, j \rangle} S_i S_j}
+Z_{cluster} = \sum_{\{S\}} e^{-\beta H \{S\}} = \sum_{\{S\}}e^{\beta J \sum_{\langle i, j \rangle} S_i S_j}
 ```
 
 For example, the partition function for the order 2 cluster could be calculated as follows:
@@ -85,22 +85,22 @@ For example, the partition function for the order 2 cluster could be calculated 
 ($2^2 = 4$ configurations).
 
 ```math
-Z = e^{\beta J (1 \cdot 1)} + e^{\beta J (1 \cdot -1)} + e^{\beta J (-1 \cdot 1)} + e^{\beta J (-1 \cdot -1)} 
+Z_{cluster} = e^{\beta J (1 \cdot 1)} + e^{\beta J (1 \cdot -1)} + e^{\beta J (-1 \cdot 1)} + e^{\beta J (-1 \cdot -1)} 
 ```
 
 ```math
-Z = e^{\beta J} + e^{-\beta J} + e^{-\beta J} + e^{\beta J} 
+Z_{cluster} = e^{\beta J} + e^{-\beta J} + e^{-\beta J} + e^{\beta J} 
 ```
 
 ```math
-Z = 2e^{\beta J} + 2e^{-\beta J}
+Z_{cluster} = 2e^{\beta J} + 2e^{-\beta J}
 ```
 
-<!-- Each cluster in the lattice has its own energy, given by the following calculation:
+Now that we have the partition function, we can calculate the energy of each cluster by summing over all of the bonds in the cluster for each configuration:
 
 ```math
-E_{cluster} = \frac{\sum_{configurations}}{Z}
-``` -->
+E_{cluster} = \frac{\sum_{\{S\}}\sum_{bonds} S_i S_j e^{J \beta S_i S_j}}{Z_{cluster}}
+```
 
 ### Weight Calculation
 
