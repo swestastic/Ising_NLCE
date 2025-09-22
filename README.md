@@ -21,7 +21,7 @@ H = -J \sum_i\sigma_i\sigma_j
 
 - **Order:** Number of sites in a cluster
 - **Symmetrically Distinct Clusters:** Unique "base" clusters which cannot be defined in terms of other symmetrically distinct clusters in the same order.
-- **Topologically Distinct Clusters:** Clusters which share the same Hamiltonian. Although there are symmetrically distinct, they have 
+- **Topologically Distinct Clusters:** Clusters which share the same Hamiltonian. Although they are symmetrically distinct, they are effectively the same cluster with additional kinks. For example, the right angle order 3 cluster can be topologically reduced to the order straight line order 3 cluster, becuase they have sufficiently similar bonds. There is probably a better explanation of this to be had, although topologically distinct clusters aren't actually implemented yet so I don't have much experience with them.
 - **Multiplicity:** Number of possible embeddings of a specific symmetrically distinct cluster in the lattice.
 - **Weight**: Number of possible embeddings of a specific smaller order cluster in a larger order cluster. 
 
@@ -29,7 +29,7 @@ H = -J \sum_i\sigma_i\sigma_j
 
 To begin, we want to calculate all of the possible valid clusters for each order we want to use. The order refers to the number of sites in each cluster, so an order 1 cluster will have 1 site, order 2 will have 2 sites, etc.
 
-Something to consider is the difference between all clusters, symmetrically distinct clusters, and topologically distinct clusters; This is discussed later. A table containing the number of clusters is below for the square lattice. 
+Something to consider is the difference between all clusters, symmetrically distinct clusters, and topologically distinct clusters; This is discussed later. A table containing the number of clusters is below for the square lattice.
 
 | Order | Total Clusters (naive) | Symmetrically Distinct | Topologically Distinct |
 | :---: | :---: | :---: | :---: |
@@ -114,7 +114,7 @@ E_\text{cluster} = \frac{\sum_{\{S\}}\sum_\text{bonds} H_\text{bond in \{S\}} e^
 For order 2 there is only one bond between $(0,0)$ and $(1,0)$, so the calculation is as follows:
 
 ```math
-E_\text{cluster} = \frac{1}{Z_\text{cluster}}((1)(1)e^{\beta J (1)(1)}
+E_\text{cluster} = \frac{-J}{Z_\text{cluster}}((1)(1)e^{\beta J (1)(1)}
  + (1)(-1)e^{\beta J (1)(-1)}
  + (-1)(1)e^{\beta J (-1)(1)}
  + (-1)(-1)e^{\beta J (-1)(-1)})
