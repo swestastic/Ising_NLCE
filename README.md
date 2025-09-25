@@ -20,12 +20,12 @@ H = -J \sum_i\sigma_i\sigma_j
 ### Key Terms
 
 - **Order:** Number of sites in a cluster
-- **Symmetrically Distinct Clusters:** Unique "base" clusters which cannot be defined in terms of other symmetrically distinct clusters in the same order.
-- **Topologically Distinct Clusters:** Clusters which share the same Hamiltonian. Although they are symmetrically distinct, they are effectively the same cluster with additional kinks. For example, the right angle order 3 cluster can be topologically reduced to the order straight line order 3 cluster, becuase they have sufficiently similar bonds. There is probably a better explanation of this to be had, although topologically distinct clusters aren't actually implemented yet so I don't have much experience with them.
+- **Symmetrically Distinct Clusters:** Unique clusters which cannot be defined in terms of other symmetrically distinct clusters in the same order.
+- **Topologically Distinct Clusters:** Unique clusters which cannot be defined in terms of other topologically distinct clusters in the same order. Multiple symmetrically distinct clusters can be topologically the same, so using the approach drastically decreases the number of clusters we use.
 - **Multiplicity:** Number of possible embeddings of a specific symmetrically distinct cluster in the lattice.
-- **Weight**: Number of possible embeddings of a specific smaller order cluster in a larger order cluster. 
+- **Weight**: Number of possible embeddings of a specific smaller order cluster in a larger order cluster.
 
-### Cluster Creation
+### Symmetrically Distinct Cluster Creation
 
 To begin, we want to calculate all of the possible valid clusters for each order we want to use. The order refers to the number of sites in each cluster, so an order 1 cluster will have 1 site, order 2 will have 2 sites, etc.
 
@@ -54,13 +54,19 @@ $[(0,0), (1,0)], [(0,0), (0,1)]$
 
 After calculating all possible clusters for an order (the number in "Total Clusters (naive)"), we then remove redundant clusters to reduce us to the number of clusters in "Symmetrically Distinct", which are then used to calculate clusters for the next order.
 
+### Topologically Distinct Cluster Creation
+
+Because there are significantly fewer topologically distinct clusters per order, it makes sense to use those if we can. Our approach for this is to calculate an adjacency matrix for each symmetrically distinct cluster, and determine if it is topologically the same as any other clusters. This implementation uses the package [igraph](https://python.igraph.org/en/stable/) for this, which is very fast and takes a lot of the difficult work out of our hands. For an additional speed boost, we calculate an md5 hash value to easily rule out some clusters. If a cluster has a unique hash value, then it will always be topologically distinct from all other clusters. If the hash value is shared by multiple clusters, then we check all of the clusters for isomorphism using igraph.
+
 ### Multiplicity Calculation
 
 The multiplicity of a cluster, $L(c)$, is given by the number of different ways a certain cluster can be orientated in the lattice, ignoring specific site locations. These are called **embeddings**. As discussed previously, we have 2 distinct order 2 clusters:
 
 $[(0,0), (0,1)], [(0,0), (1,0)]$.
 
-If we examine the clusters, we see that they are effectively the same cluster, just rotated $90\degree$. This means they are **not symmetrically distinct**. Symmetrically distinct clusters are clusters which cannot be created by transformations and translations of other symmetrically distinct clusters on the lattice through rotations and/or mirroring. The multiplicity for each cluster is given by its number of unique embeddings. For order 2, these two clusters yield 1 symmetrically distinct cluster with a multiplicity of 2.
+If we examine the clusters, we see that they are effectively the same cluster, just rotated $90\degree$. This means they are **not symmetrically distinct**. Symmetrically distinct clusters are clusters which cannot be created by transformations and translations of other symmetrically distinct clusters on the lattice through rotations and/or mirroring. The multiplicity for each cluster is given by its number of unique embeddings. For order 2, these two clusters yield 1 symmetrically distinct cluster with a multiplicity of $2$.
+
+When using topologically distinct clusters, if we find that two or more clusters are topologically the same, then we reduce those down to one cluster and combine the multiplicities of the symmetrically distinct topologically identical clusters. For example, the two order 3 clusters have multiplicities of $2$ (straight line) and $4$ (L-shape). These can be reduced to one cluster with a multiplicity of $2+4=6$
 
 ### Bond Calculation
 
@@ -174,21 +180,21 @@ These are not yet implemented, but are discussed in reference [1].
 
 ### Runtimes
 
-Calculating everything (clusters, bonds, energies, etc.) for up to order 9 takes about 167 minutes on my personal machine (old, less efficient cluster generation)
-
-For up to order 8, it takes about 24 minutes to calculate everything from scratch.
+Calculating everything (clusters, bonds, multiplicities, weights, energies, etc.) up to order 8 and sweeping over 30 temperatures takes about 20 minutes using symmetrically distinct clusters, and 1 minute using topologically distinct clusters on my personal machine.
 
 ### TODO
-
-- The Hamiltonian is currently recomputed for all clusters, although it only *needs* to be recomputed for topologically distinct clusters.
 
 - Allow for loading of clusters, energies, bonds, etc. This way if we have previously computed up to order 8, then to compute order 9 we do not need to recalculate the lower orders.
 
 - Implement resummation techniques.
 
-- Possible bug? Orders 2&3, 4&5, 6&7, ... return near identical results. Even orders create more bonds, so it may make sense that going from even $\rightarrow$ odd order would give better results than going from odd $\rightarrow$ even order, although I'm not sure.
-
 - Update lists to NumPy arrays.
+
+### Possible Bugs
+
+- Orders 2&3, 4&5, 6&7, ... return near identical results. Even orders create more bonds, so it may make sense that going from odd $\rightarrow$ even order would give a bigger change than going from even $\rightarrow$ odd order, although I'm not sure.
+
+- Results are not exactly identical between symmetrically distinct and topologically distinct clusters for higher orders. Order 6 matches within 10^-13, order 8 matches within 10^-11, etc. This may be due to floating point errors in the symmetrically distinct clusters, or some other issue.
 
 ### Acknowledgements
 
